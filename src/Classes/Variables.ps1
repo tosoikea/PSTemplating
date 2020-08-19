@@ -1,27 +1,12 @@
 #Requires -Version 5.0
-using module .\Operation.ps1
-
-class OperationChain {
-    hidden [Operation[]] $Operations
-
-    hidden [Operation[][]] $Chains
-    
-    hidden [void] Init() {
-        
-    }
-
-    OperationChain([Operation[]] $operations) {
-        $this.Operations = $operations
-        Init()
-    }
-}
+using module .\OperationChain.ps1
 
 class Variable {
     hidden [OperationChain] $Operations
     hidden [string] $Name
     hidden [string] $Value
 
-    [string] GetName(){
+    [string] GetName() {
         return $this.Name
     }
 
