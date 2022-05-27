@@ -11,6 +11,10 @@ class OperationGroup {
         return "OperationGroup(operations=[{0}])" -f [system.String]::Join(",", $this.Operations)
     }
 
+    [Operation[]] GetOperations() {
+        return $this.Operations
+    }
+
     OperationGroup([Operation[]] $operations) {
         for ([int] $i = 1; $i -lt $operations.Length; $i++) {
             if (-not $operations[$i].IsFailover()) {

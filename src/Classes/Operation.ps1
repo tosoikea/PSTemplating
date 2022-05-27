@@ -12,12 +12,12 @@ class Operation {
     }
 
     # Generates the results from the supplied value.
-    [Value[]] Evaluate([string] $value) {
-        $res = $this.Execute($value)
+    [Value[]] Evaluate([Value] $value) {
+        $res = $this.Execute($value.GetValue())
         $vals = [Value[]]::new($res.Count);
 
         for ([int] $i = 0; $i -lt $vals.Length; $i++) {
-            $vals[$i] = [Value]::new($this.Failover, $res[$i])
+            $vals[$i] = [Value]::new($this.Failover -or $value.IsFailover(), $res[$i])
         }
 
         return $vals
