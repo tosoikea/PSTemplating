@@ -19,7 +19,7 @@ class Plain : SchemaNode {
     }
 
     [string] ToString() {
-        return "Plain(value={0}" -f $this.GetValue()
+        return "Plain(value={0})" -f $this.GetValue()
     }
     
     [String] Bind([System.Collections.Generic.Dictionary[String, String]] $bindings) {

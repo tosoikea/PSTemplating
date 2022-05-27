@@ -7,12 +7,30 @@ class OperationGroup {
     # Operations included in the group.
     hidden [Operation[]] $Operations
 
-    [string] ToString() {
-        return "OperationGroup(operations=[{0}])" -f [system.String]::Join(",", $this.Operations)
-    }
-
     [Operation[]] GetOperations() {
         return $this.Operations
+    }
+
+    [boolean] Equals($obj) {
+        #Check for null and compare run-time types.
+        if (($null -eq $obj) -or -not $this.GetType().Equals($obj.GetType())) {
+            return $false;
+        }
+        else {
+            $other = $obj -as [OperationGroup]
+
+            $isEqual = ($this.Operations.Length -eq $other.Operations.Length)
+            
+            for ([int] $i = 0; $i -lt $this.Operations.Length -and $isEqual; $i++) {
+                $isEqual = $this.Operations[$i] -eq $other.Operations[$i]
+            }
+
+            return $isEqual
+        }
+    }
+
+    [string] ToString() {
+        return "OperationGroup(operations=[{0}])" -f [system.String]::Join(",", $this.Operations)
     }
 
     OperationGroup([Operation[]] $operations) {

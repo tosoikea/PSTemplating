@@ -24,12 +24,19 @@ class Variable : SchemaNode {
         }
         else {
             $other = $obj -as [Variable]
-            return ($this.Failover -eq $other.Failover) -and ($this.Name -eq $other.Name) -and ($this.Operations -eq $other.Operations)
+
+            $isEqual = ($this.Failover -eq $other.Failover) -and ($this.Name -eq $other.Name) -and ($this.Operations.Length -eq $other.Operations.Length)
+            
+            for ([int] $i = 0; $i -lt $this.Operations.Length -and $isEqual; $i++){
+                $isEqual = $this.Operations[$i] -eq $other.Operations[$i]
+            }
+
+            return $isEqual
         }
     }
 
     [string] ToString() {
-        return "Variable(isFailOver={0},name={1},operations=[{2}])" -f $this.GetName(), $this.IsFailover(), [system.String]::Join(",", $this.Operations)
+        return "Variable(isFailOver={0},name={1},operations=[{2}])" -f $this.IsFailover(), $this.GetName(), [system.String]::Join(",", $this.Operations)
     }
 
     [String] Bind([System.Collections.Generic.Dictionary[String, String]] $bindings) {

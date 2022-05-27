@@ -27,6 +27,17 @@ class Operation {
     [string[]] Execute([string] $value) {
         return @("")
     }
+    
+    [boolean] Equals($obj) {
+        #Check for null and compare run-time types.
+        if (($null -eq $obj) -or -not $this.GetType().Equals($obj.GetType())) {
+            return $false;
+        }
+        else {
+            $other = $obj -as [Operation]
+            return ($this.IsFailover() -eq $other.IsFailover())
+        }
+    }
 
     [string] ToString() {
         return "{0}(isFailOver={1},parameters=[{2}])" -f $this.GetType(), $this.IsFailover(), [system.String]::Join(",", $this.Parameters)
@@ -54,23 +65,79 @@ class NoOp : Operation {
 }
 
 <#
+    This class defines the operation replacing search regex with desired values.
+#>
+class ReplaceOp : Operation {
+    hidden [regex] $Search
+    hidden [String] $Replacement
+    
+    [string[]] Execute([string] $value) {
+        throw [System.NotImplementedException]::new()
+    }
+
+    ReplaceOp([boolean] $failover, [string[]] $parameters) : base($failover, $parameters) {
+        if ($parameters.Length -gt 0) {
+            $this.Search = [regex]::new($parameters[0])
+        }
+
+        if ($parameters.Length -gt 1) {
+            $this.Replacement = $parameters[1]
+        }
+    }
+}
+
+<#
+    This class defines the operation splitting a value based on white spaces and hyphens.
+#>
+class SplitOp : Operation {
+    [string[]] Execute([string] $value) {
+        throw [System.NotImplementedException]::new()
+    }
+
+    SplitOp([boolean] $failover) : base($failover, @()) {
+        
+    }
+}
+
+<#
     This class defines the operation indexing into the supplied value.
 #>
 class SelectionOp : Operation {
-    hidden [int] $Index = 0
+    hidden [int[]] $Indexes
 
     [string[]] Execute([string] $value) {
-        if ($value.Length -le $this.Index -or $this.Index -lt 0) {
-            return @("")
+        $res = ""
+
+        foreach ($index in $this.Indexes) {
+            if ($index -ge 0 -and $index -lt $value.Length) {
+                $res += $value[$index]
+            }
         }
-        else {
-            return @($value[$this.Index])
+
+        return @($res)
+    }
+    
+    [boolean] Equals($obj) {
+        $isEqual = ([Operation]$this).Equals($obj)
+
+        if ($isEqual) {
+            $other = $obj -as [SelectionOp]
+            
+            $isEqual = ($this.Indexes.Length -eq $other.Indexes.Length)
+            
+            for ([int] $i = 0; $i -lt $this.Indexes.Length -and $isEqual; $i++) {
+                $isEqual = $this.Indexes[$i] -eq $other.Indexes[$i]
+            }
         }
+
+        return $isEqual
     }
 
     SelectionOp([boolean] $failover, [string[]] $parameters) : base($failover, $parameters) {
-        if ($parameters.Length -gt 0) {
-            $this.Index = [Int]::Parse($parameters[0])
+        $this.Indexes = @()
+
+        foreach ($parameter in $parameters) {
+            $this.Indexes += [Int]::Parse($parameter)
         }
     }
 }
@@ -108,6 +175,17 @@ class ToUpperOp : Operation {
 class CountOp : Operation {
     hidden [int] $From = 1
     hidden [int] $To = 10
+
+    [boolean] Equals($obj) {
+        $isEqual = ([Operation]$this).Equals($obj)
+
+        if ($isEqual) {
+            $other = $obj -as [CountOp]
+            $isEqual = ($this.From -eq $other.From) -and ($this.To -eq $other.To)
+        }
+
+        return $isEqual
+    }
 
     CountOp([boolean] $failover, [string[]] $parameters) : base($failover, $parameters) {
         if ($parameters.Length -gt 0) {
@@ -157,22 +235,31 @@ class CountDownOp : CountOp {
     This "factory" generates a concise operation from the supplied name.
 #>
 class OperationFactory {
-    static [Operation] GetOperation([String] $name, [string[]] $parameters) {
+    static [Operation] GetOperation([boolean] $isFailover, [String] $name, [string[]] $parameters) {
         switch ($name.ToLower()) {
             "upper" {
-                return [ToUpperOp]::new()
+                return [ToUpperOp]::new($isFailover)
             }
             "lower" {
-                return [ToLowerOp]::new()
+                return [ToLowerOp]::new($isFailover)
             }
             "countdown" {
-                return [CountDownOp]::new($parameters)
+                return [CountDownOp]::new($isFailover, $parameters)
             }
             "countup" {
-                return [CountUpOp]::new($parameters)
+                return [CountUpOp]::new($isFailover, $parameters)
+            }
+            "sel" {
+                return [SelectionOp]::new($isFailover, $parameters)
+            }
+            "split" {
+                return [SplitOp]::new($isFailover)
+            }
+            "replace" {
+                return [ReplaceOp]::new($isFailover, $parameters)
             }
         }
 
-        throw [System.NotImplementedException]::new()
+        throw [System.NotImplementedException]::new($name)
     }
 }
