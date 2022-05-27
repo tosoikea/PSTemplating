@@ -24,4 +24,28 @@ function ConvertFrom-Schema {
         [object]
         $InputObject
     )
+
+    # A) Parse Schema
+    $parsed = ConvertFrom-SchemaText -Schema $Schema
+
+    # B) Convert Input Object into bindings
+    # TODO IEnumerable<KeyValuePair>, hashtable ...
+    if ($InputObject -is [psobject]) {
+        $bindings = ConvertFrom-PSObject -Values $InputObject
+    }
+    else {
+        throw [System.NotImplementedException]::new($InputObject.GetType())
+    }
+
+    # C) Generate values
+    [Value[]] $generated = Use-Schema -Schema $parsed -Bindings $bindings
+
+    # D) Only return text value
+    $res = [string[]]::new($generated.Length)
+
+    for ([int] $i = 0; $i -lt $res.Length; $i++) {
+        $res[$i] = $generated[$i].GetValue()
+    }
+
+    return $res
 }
