@@ -60,7 +60,7 @@ class SelectionOp : Operation {
     hidden [int] $Index = 0
 
     [string[]] Execute([string] $value) {
-        if ($value.Length -le $this.Index) {
+        if ($value.Length -le $this.Index -or $this.Index -lt 0) {
             return @("")
         }
         else {
@@ -138,11 +138,11 @@ class CountUpOp : CountOp {
 
 class CountDownOp : CountOp {    
     [string[]] Execute([string] $value) {
-        $amount = [System.Math]::Max($this.To - $this.From + 1, 0)
+        $amount = [System.Math]::Max($this.From - $this.To + 1, 0)
 
         $values = [string[]]::new($amount)
-        for ($i = $this.To; $i -ge $this.From; $i--) {
-            $values[$this.To - $i] = "{0}{1}" -f $value, $i
+        for ($i = $this.From; $i -ge $this.To; $i--) {
+            $values[$this.From - $i] = "{0}{1}" -f $value, $i
         }
 
         return $values

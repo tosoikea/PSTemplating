@@ -2,56 +2,47 @@ $manifestPath = '{0}\..\src\PSTemplating.psd1' -f $PSScriptRoot
 Import-Module $manifestPath -Force -ErrorAction Stop
 
 InModuleScope PSTemplating {
-    Describe "SelectionOp <Value>[<Parameter>]" -ForEach @(
+    Describe "NoOp <Value>" -ForEach @(
         @{
-            Value     = "Test";
-            Parameter = "0";
-            Expected  = @(
+            Value    = "TEsT";
+            Expected = @(
                 [Value]::new(
                     $false,
-                    "T"
+                    "TEsT"
                 )
             )
         },
         @{
-            Value     = "Ci";
-            Parameter = "2";
-            Expected  = @(
+            Value    = "Vaasdasd";
+            Expected = @(
                 [Value]::new(
                     $false,
-                    ""
+                    "Vaasdasd"
                 )
             )
         },
         @{
-            Value     = "Ci";
-            Parameter = "-1";
-            Expected  = @(
+            Value    = "vasdasd";
+            Expected = @(
                 [Value]::new(
                     $false,
-                    ""
+                    "vasdasd"
                 )
             )
         },
         @{
-            Value     = "Ci";
-            Parameter = "1";
-            Expected  = @(
+            Value    = "ADSDED";
+            Expected = @(
                 [Value]::new(
                     $false,
-                    "i"
+                    "ADSDED"
                 )
             )
         }
     ) {
         It "Valid Evaluation" {
             # A) Setup
-            $op = [SelectionOp]::new(
-                $false, 
-                @(
-                    $Parameter
-                )
-            )
+            $op = [NoOp]::new()
 
             # B) Operation
             $values = $op.Evaluate(
