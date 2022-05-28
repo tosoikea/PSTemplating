@@ -29,8 +29,10 @@ function ConvertFrom-Schema {
     $parsed = ConvertFrom-SchemaText -Schema $Schema
 
     # B) Convert Input Object into bindings
-    # TODO IEnumerable<KeyValuePair>, hashtable ...
-    if ($InputObject -is [psobject]) {
+    if ([System.Collections.IDictionary].IsAssignableFrom($InputObject.GetType())) {
+        $bindings = ConvertFrom-Dictionary -Values $InputObject
+    }
+    elseif ($InputObject -is [psobject]) {
         $bindings = ConvertFrom-PSObject -Values $InputObject
     }
     else {
