@@ -1,0 +1,22 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Test PowerShell on Ubuntu
+
+# Controls when the workflow will run
+on: push
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  pester-test:
+    name: Pester test
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      
+      - name: Perform pester tests
+        shell: pwsh
+        run: Invoke-Pester ./Tests -Passthru
