@@ -19,4 +19,6 @@ jobs:
       
       - name: Perform pester tests
         shell: pwsh
-        run: Invoke-Pester ./Tests -Passthru
+        run: |
+          Set-Location ./Tests,
+          Invoke-Pester -Passthru
