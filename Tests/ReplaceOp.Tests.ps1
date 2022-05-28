@@ -2,61 +2,41 @@ $manifestPath = Join-Path -Path (Join-Path -Path (Join-Path -Path $PSScriptRoot 
 Import-Module $manifestPath -Force -ErrorAction Stop
 
 InModuleScope PSTemplating {
-    Describe "SelectionOp <Value>[<Parameter>]" -ForEach @(
+    Describe "ReplaceOp <Value>[<Parameter>]" -ForEach @(
         @{
-            Value     = "Test";
-            Parameter = @("0");
+            Value     = "A B";
+            Parameter = @(" ", "-");
             Expected  = @(
                 [Value]::new(
                     $false,
-                    "T"
+                    "A-B"
                 )
             )
         },
         @{
-            Value     = "Ci";
-            Parameter = @("2");
+            Value     = "AB";
+            Parameter = @("$", " ");
             Expected  = @(
                 [Value]::new(
                     $false,
-                    ""
+                    "AB "
                 )
             )
         },
         @{
-            Value     = "Ci";
-            Parameter = @("-1");
+            Value     = "AB";
+            Parameter = @("^", " ");
             Expected  = @(
                 [Value]::new(
                     $false,
-                    ""
-                )
-            )
-        },
-        @{
-            Value     = "Ci";
-            Parameter = @("1");
-            Expected  = @(
-                [Value]::new(
-                    $false,
-                    "i"
-                )
-            )
-        },
-        @{
-            Value     = "Ci";
-            Parameter = @("1", "0");
-            Expected  = @(
-                [Value]::new(
-                    $false,
-                    "iC"
+                    " AB"
                 )
             )
         }
     ) {
         It "Valid Evaluation" {
             # A) Setup
-            $op = [SelectionOp]::new(
+            $op = [ReplaceOp]::new(
                 $false, 
                 $Parameter
             )

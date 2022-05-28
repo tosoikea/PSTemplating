@@ -72,7 +72,12 @@ class ReplaceOp : Operation {
     hidden [String] $Replacement
     
     [string[]] Execute([string] $value) {
-        throw [System.NotImplementedException]::new()
+        $updated = ""
+        if (-not [String]::IsNullOrEmpty($this.Replacement)) {
+            $updated = $this.Replacement
+        }
+
+        return $this.Search.Replace($value, $updated)
     }
 
     ReplaceOp([boolean] $failover, [string[]] $parameters) : base($failover, $parameters) {
@@ -91,7 +96,14 @@ class ReplaceOp : Operation {
 #>
 class SplitOp : Operation {
     [string[]] Execute([string] $value) {
-        throw [System.NotImplementedException]::new()
+        [string[]] $wValues = $value -split " "
+
+        [string[]] $res = @()
+        foreach ($wValue in $wValues) {
+            $res += $wValue -split "-"
+        }
+
+        return $res
     }
 
     SplitOp([boolean] $failover) : base($failover, @()) {
