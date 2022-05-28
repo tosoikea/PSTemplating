@@ -32,14 +32,22 @@ jobs:
           }
 
   pester-test:
-    name: Test module
+    name: Test module and upload results
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Perform pester tests
+      - name: Test with Pester
         shell: pwsh
-        run: Invoke-Pester -Passthru
+        run: Invoke-Pester -Passthru | Export-Clixml -Path Module.Tests.xml
         working-directory: ./Tests
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ubuntu-Module-Tests
+          path: ./Tests/Module.Tests.xml
+    #The always() function configures the job to continue processing even if there are test failures. For more information, see "always."
+    if: ${{ always() }}
