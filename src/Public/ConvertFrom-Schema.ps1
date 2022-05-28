@@ -49,5 +49,6 @@ function ConvertFrom-Schema {
         $res[$i] = $generated[$i].GetValue()
     }
 
-    return $res
+    # https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-arrays?view=powershell-7.2
+    Write-Output -NoEnumerate $res
 }

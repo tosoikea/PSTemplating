@@ -21,7 +21,7 @@ function Use-Schema {
         
         $nRes = [System.Collections.Generic.List[Value]]::new()
         $nValues = Get-NodeValues -Node $node -Bindings $Bindings
-
+        
         foreach ($value in $res) {
             # A) Pass-Through
             if ($node.IsFailover()) {
@@ -42,5 +42,6 @@ function Use-Schema {
         $res = $nRes
     }
 
-    return $res.ToArray()
+    # https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-arrays?view=powershell-7.2
+    Write-Output -NoEnumerate $res.ToArray()
 }

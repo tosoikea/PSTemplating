@@ -12,8 +12,8 @@ function Get-NodeValues {
     $res = [System.Collections.Generic.List[Value]]::new()
 
     # A) Calculate the paths possible for the variable. This could in general be done once in a pre-processing step.
-    $paths = Get-OperationPaths -Node $Node
-
+    [Operation[][]] $paths = Get-OperationPaths -Node $Node
+    
     # B) Generate values based on the paths.
     foreach ($path in $paths) {
         $values = [System.Collections.Generic.List[Value]]::new()
@@ -42,5 +42,6 @@ function Get-NodeValues {
         }
     }
 
-    return $res.ToArray()
+    # https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-arrays?view=powershell-7.2
+    Write-Output -NoEnumerate $res.ToArray()
 }

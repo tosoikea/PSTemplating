@@ -6,13 +6,12 @@ function Get-OperationPaths {
         $Node
     )
 
-    [Operation[][]] $paths = @(
-        # Root Entry : Just return value
-        @([NoOp]::new())
-    )
+    $paths = [Operation[][]]::new(1)
+    $paths[0] = [NoOp]::new()
 
     if ($Node -is [Plain]) {
-        return $paths
+        # https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-arrays?view=powershell-7.2
+        Write-Output -NoEnumerate $paths
     }
     elseif ($Node -is [Variable]) {
         $Variable = $Node -as [Variable]
@@ -33,6 +32,7 @@ function Get-OperationPaths {
                     # Add operation of group as distinct leaf (they are not chained!)
                     $leafs += $groupOps[$i]
                 }
+
     
                 # Setup paths from known nodes and newly found leafs
                 foreach ($leaf in $leafs) {
@@ -53,7 +53,8 @@ function Get-OperationPaths {
             $paths = $nPaths.ToArray()
         }
     
-        return $paths
+        # https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-arrays?view=powershell-7.2
+        Write-Output -NoEnumerate $paths
     }
     else {
         throw [System.NotImplementedException]::new()
