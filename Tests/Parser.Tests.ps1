@@ -1,4 +1,4 @@
-$manifestPath = '{0}\..\src\PSTemplating.psd1' -f $PSScriptRoot
+$manifestPath = Join-Path -Path (Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath "..") -ChildPath "src") -ChildPath "PSTemplating.psd1" 
 Import-Module $manifestPath -Force -ErrorAction Stop
 
 InModuleScope PSTemplating {
