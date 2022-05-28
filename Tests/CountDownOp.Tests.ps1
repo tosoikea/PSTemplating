@@ -1,3 +1,5 @@
+Write-Error -Message (Get-ChildItem $PSScriptRoot)
+
 $manifestPath = '{0}\..\src\PSTemplating.psd1' -f $PSScriptRoot
 Import-Module $manifestPath -Force -ErrorAction Stop
 
