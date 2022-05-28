@@ -58,5 +58,7 @@ jobs:
           NUGET_KEY: ${{ secrets.NUGET_KEY }}
         shell: pwsh
         run: |
-          Publish-Module -Path ./src -NuGetApiKey $env:NUGET_KEY -Verbose
+          New-Item -Path "./Output/PSTemplating" -ItemType Directory
+          Copy-Item -Path "./src/*" -Destination "./Output/PSTemplating" -Recurse
+          Publish-Module -Path "./Output/PSTemplating" -NuGetApiKey $env:NUGET_KEY -Verbose
     needs: [pester-test]
