@@ -6,37 +6,25 @@ InModuleScope PSTemplating {
         @{
             Value    = "TEsT";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "TEsT"
-                )
+                "TEsT"
             )
         },
         @{
             Value    = "Vaasdasd";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "Vaasdasd"
-                )
+                "Vaasdasd"
             )
         },
         @{
             Value    = "vasdasd";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "vasdasd"
-                )
+                "vasdasd"
             )
         },
         @{
             Value    = "ADSDED";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "ADSDED"
-                )
+                "ADSDED"
             )
         }
     ) {
@@ -45,11 +33,8 @@ InModuleScope PSTemplating {
             $op = [NoOp]::new()
 
             # B) Operation
-            $values = $op.Evaluate(
-                [Value]::new(
-                    $false,
-                    $Value
-                )
+            $values = $op.Execute(
+                $Value
             )
 
             # C) Assertion

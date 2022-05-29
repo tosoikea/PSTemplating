@@ -1,13 +1,20 @@
 function Get-OperationPaths {
-    [OutputType([Operation[][]])]
+    [OutputType([Tuple[bool, Operation[]][]])]
     param(
         [Parameter(Mandatory)]
         [SchemaNode]
         $Node
     )
 
-    $paths = [Operation[][]]::new(1)
-    $paths[0] = [NoOp]::new()
+    $paths = [Tuple[bool, Operation[]][]]::new(1)
+
+    # Basic path is non failover with return of value
+    $paths[0] = [Tuple[bool, Operation[]]]::new(
+        $false,
+        @(
+            [NoOp]::new()
+        )
+    )
 
     if ($Node -is [Plain]) {
         # https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-arrays?view=powershell-7.2
@@ -17,36 +24,31 @@ function Get-OperationPaths {
         $Variable = $Node -as [Variable]
         
         foreach ($group in $Variable.GetOperations()) {
-            $groupOps = $group.GetOperations();
-            $nPaths = [System.Collections.Generic.List[Operation[]]]::new()
+            $nPaths = [System.Collections.Generic.List[Tuple[bool, Operation[]]]]::new()
+            [Tuple[bool, Operation[]][]] $gPaths = $group.GetPaths()
     
             foreach ($path in $paths) {
-                [Operation[]] $leafs = @()
-    
-                for ([int] $i = 0; $i -lt $groupOps.Length; $i++) {
-                    # First Failover? -> Add additional NoOp
-                    if ($i -eq 0 -and $groupOps[$i].IsFailover()) {
-                        $leafs += [NoOp]::new()
-                    }
-    
-                    # Add operation of group as distinct leaf (they are not chained!)
-                    $leafs += $groupOps[$i]
-                }
-
-    
-                # Setup paths from known nodes and newly found leafs
-                foreach ($leaf in $leafs) {
-                    $nPath = [Operation[]]::new($path.Length + 1)
+                # Setup paths from known nodes and newly found group paths
+                foreach ($gPath in $gPaths) {
+                    $nodes = [Operation[]]::new($path.Item2.Length + $gPath.Item2.Length)
     
                     # A) Copy nodes from known path
-                    for ([int] $i = 0; $i -lt $path.Length; $i++) {
-                        $nPath[$i] = $path[$i]
+                    for ([int] $i = 0; $i -lt $path.Item2.Length; $i++) {
+                        $nodes[$i] = $path.Item2[$i]
                     }
+                    
                     # B) Extend path
-                    $nPath[$nPath.Length - 1] = $leaf
+                    for ([int] $i = 0; $i -lt $gPath.Item2.Length; $i++) {
+                        $nodes[$path.Item2.Length + $i] = $gPath.Item2[$i]
+                    }
     
                     # C) Append newly constructed path to next path iteration
-                    $nPaths.Add($nPath)
+                    $nPaths.Add(
+                        [Tuple[bool, Operation[]]]::new(
+                            $path.Item1 -or $gPath.Item1,
+                            $nodes
+                        )
+                    )
                 }
             }
             

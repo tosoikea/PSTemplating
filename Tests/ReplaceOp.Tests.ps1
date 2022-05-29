@@ -7,46 +7,33 @@ InModuleScope PSTemplating {
             Value     = "A B";
             Parameter = @(" ", "-");
             Expected  = @(
-                [Value]::new(
-                    $false,
-                    "A-B"
-                )
+                "A-B"
             )
         },
         @{
             Value     = "AB";
             Parameter = @("$", " ");
             Expected  = @(
-                [Value]::new(
-                    $false,
-                    "AB "
-                )
+                "AB "
             )
         },
         @{
             Value     = "AB";
             Parameter = @("^", " ");
             Expected  = @(
-                [Value]::new(
-                    $false,
-                    " AB"
-                )
+                " AB"
             )
         }
     ) {
         It "Valid Evaluation" {
             # A) Setup
             $op = [ReplaceOp]::new(
-                $false, 
                 $Parameter
             )
 
             # B) Operation
-            $values = $op.Evaluate(
-                [Value]::new(
-                    $false,
-                    $Value
-                )
+            $values = $op.Execute(
+                $Value
             )
 
             # C) Assertion

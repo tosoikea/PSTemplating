@@ -28,7 +28,9 @@ function ConvertFrom-SchemaText {
     $operations = @()
 
     $operation = ""
-    $failoverOperation = $false
+    $failoverGroup = $false
+    # 0 unspecified, 1 conjunctive, 2 disjunctive
+    $groupType = 0
     $parameters = @()
 
     # for mode 3 : parameter
@@ -107,21 +109,44 @@ function ConvertFrom-SchemaText {
                     '?' {
                         # Starting operation marked as failover
                         if ($operation -eq "") {
-                            $failoverOperation = $true
+                            $failoverGroup = $true
                         }
-                        # Multiple operations in group
                         else {
+                            Write-Error -Message "Unexpected question mark in schema string."
+                        }
+                    }
+                    '|' {
+                        if ($groupType -eq 0 -or $groupType -eq 2) {
                             # Save
+                            $groupType = 2
                             $operations += [OperationFactory]::GetOperation(
-                                $failoverOperation,
                                 $operation,
                                 $parameters
                             )
-                            $failoverOperation = $true
 
                             # Reset
                             $operation = ""
                             $parameters = @()
+                        }
+                        else {
+                            Write-Error -Message "Mixed disjunctive group with conjunctive group."
+                        }
+                    }
+                    '&' {
+                        if ($groupType -eq 0 -or $groupType -eq 1) {
+                            # Save
+                            $groupType = 1
+                            $operations += [OperationFactory]::GetOperation(
+                                $operation,
+                                $parameters
+                            )
+
+                            # Reset
+                            $operation = ""
+                            $parameters = @()
+                        }
+                        else {
+                            Write-Error -Message "Mixed conjunctive group with disjunctive group."
                         }
                     }
                     # B) We switch to parameter matching upon encountering a [
@@ -133,19 +158,33 @@ function ConvertFrom-SchemaText {
                         # Save
                         if ($operation -ne "") {
                             $operations += [OperationFactory]::GetOperation(
-                                $failoverOperation,
                                 $operation,
                                 $parameters
                             )
                         }
 
-                        $operationGroups.Add(
-                            [OperationGroup]::new($operations)
-                        )
+                        switch ($groupType) {
+                            1 {
+                                $operationGroups.Add(
+                                    [OperationGroup]::new($operations, $failoverGroup, [OperationGroupType]::Conjunctive)
+                                ) 
+                            }
+                            2 {
+                                $operationGroups.Add(
+                                    [OperationGroup]::new($operations, $failoverGroup, [OperationGroupType]::Disjunctive)
+                                )
+                            }
+                            Default {
+                                $operationGroups.Add(
+                                    [OperationGroup]::new($operations, $failoverGroup)
+                                )
+                            }
+                        }
 
                         # Reset
                         $operation = ""
-                        $failoverOperation = $false
+                        $failoverGroup = $false
+                        $groupType = 0
                         $parameters = @()
                         $operations = @()
 

@@ -32,18 +32,21 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ToLowerOp]::new($false)
-                                )
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
                             ),
                             [OperationGroup]::new(
                                 @(
-                                    [SelectionOp]::new($true, @("0"))
-                                )
+                                    [SelectionOp]::new(@("0"))
+                                ),
+                                $true
                             ),
                             [OperationGroup]::new(
                                 @(
-                                    [CountUpOp]::new($true, @("1", "3"))
-                                )
+                                    [CountUpOp]::new(@("1", "3"))
+                                ),
+                                $true
                             )
                         )
                     )
@@ -51,7 +54,7 @@ InModuleScope PSTemplating {
             )
         },
         @{
-            Schema   = "{x(lower)(?sel[0]?countUp[1,3])}";
+            Schema   = "{x(lower)(?sel[0]|countUp[1,3])}";
             Expected = [Schema]::new(
                 @(
                     [Variable]::new(
@@ -60,14 +63,44 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ToLowerOp]::new($false)
-                                )
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
                             ),
                             [OperationGroup]::new(
                                 @(
-                                    [SelectionOp]::new($true, @("0")),
-                                    [CountUpOp]::new($true, @("1", "3"))
-                                )
+                                    [SelectionOp]::new(@("0")),
+                                    [CountUpOp]::new(@("1", "3"))
+                                ),
+                                $true,
+                                [OperationGroupType]::Disjunctive
+                            )
+                        )
+                    )
+                )
+            )
+        },
+        @{
+            Schema   = "{x(lower)(?sel[0]&countUp[1,3])}";
+            Expected = [Schema]::new(
+                @(
+                    [Variable]::new(
+                        $false,
+                        "x",
+                        @(
+                            [OperationGroup]::new(
+                                @(
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
+                            ),
+                            [OperationGroup]::new(
+                                @(
+                                    [SelectionOp]::new(@("0")),
+                                    [CountUpOp]::new(@("1", "3"))
+                                ),
+                                $true,
+                                [OperationGroupType]::Conjunctive
                             )
                         )
                     )
@@ -85,8 +118,9 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ToLowerOp]::new($false)
-                                )
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
                             )
                         )
                     ),
@@ -97,13 +131,15 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ToLowerOp]::new($false)
-                                )
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
                             ),
                             [OperationGroup]::new(
                                 @(
-                                    [CountUpOp]::new($true, @("1", "9"))
-                                )
+                                    [CountUpOp]::new(@("1", "9"))
+                                ),
+                                $true
                             )
                         )
                     ),
@@ -114,8 +150,9 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ToLowerOp]::new($false)
-                                )
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
                             )
                         )
                     )
@@ -123,7 +160,7 @@ InModuleScope PSTemplating {
             )
         },
         @{
-            Schema   = "ext-{firstName(lower)(sel[0]?sel[0,1]?sel[0,2]?sel[0,1,2])}.{lastName(lower)(?split)}";
+            Schema   = "ext-{firstName(lower)(sel[0]|sel[0,1]|sel[0,2]|sel[0,1,2])}.{lastName(lower)(?split)}";
             Expected = [Schema]::new(
                 @(
                     [Plain]::new("ext-"),
@@ -133,16 +170,19 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ToLowerOp]::new($false)
-                                )
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
                             ),
                             [OperationGroup]::new(
                                 @(
-                                    [SelectionOp]::new($false, @("0")),
-                                    [SelectionOp]::new($true, @("0", "1")),
-                                    [SelectionOp]::new($true, @("0", "2")),
-                                    [SelectionOp]::new($true, @("0", "1", "2"))
-                                )
+                                    [SelectionOp]::new(@("0")),
+                                    [SelectionOp]::new(@("0", "1")),
+                                    [SelectionOp]::new(@("0", "2")),
+                                    [SelectionOp]::new(@("0", "1", "2"))
+                                ),
+                                $false,
+                                [OperationGroupType]::Disjunctive
                             )
                         )
                     ),
@@ -153,13 +193,15 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ToLowerOp]::new($false)
-                                )
+                                    [ToLowerOp]::new()
+                                ),
+                                $false
                             ),
                             [OperationGroup]::new(
                                 @(
-                                    [SplitOp]::new($true)
-                                )
+                                    [SplitOp]::new()
+                                ),
+                                $true
                             )
                         )
                     )
@@ -167,7 +209,7 @@ InModuleScope PSTemplating {
             )
         },
         @{
-            Schema   = "{lastName(?replace[$, ])(?countUp)}, {firstName} (extern)";
+            Schema   = "{lastName(?replace[$, ]&countUp)}, {firstName} (extern)";
             Expected = [Schema]::new(
                 @(
                     [Variable]::new(
@@ -176,13 +218,11 @@ InModuleScope PSTemplating {
                         @(
                             [OperationGroup]::new(
                                 @(
-                                    [ReplaceOp]::new($true, @("$", " "))
-                                )
-                            ),
-                            [OperationGroup]::new(
-                                @(
-                                    [CountUpOp]::new($true, @())
-                                )
+                                    [ReplaceOp]::new(@("$", " ")),
+                                    [CountUpOp]::new(@())
+                                ),
+                                $true,
+                                [OperationGroupType]::Conjunctive
                             )
                         )
                     ),

@@ -8,22 +8,10 @@ InModuleScope PSTemplating {
             From     = "0";
             To       = "3";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "Test0"
-                ),
-                [Value]::new(
-                    $false,
-                    "Test1"
-                ),
-                [Value]::new(
-                    $false,
-                    "Test2"
-                ),
-                [Value]::new(
-                    $false,
-                    "Test3"
-                )
+                "Test0",
+                "Test1",
+                "Test2",
+                "Test3"
             )
         },
         @{
@@ -31,10 +19,7 @@ InModuleScope PSTemplating {
             From     = "0";
             To       = "0";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "Test0"
-                )
+                "Test0"
             )
         },
         @{
@@ -48,25 +33,15 @@ InModuleScope PSTemplating {
             From     = "-3";
             To       = "-1";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "Test-3"
-                ),
-                [Value]::new(
-                    $false,
-                    "Test-2"
-                ),
-                [Value]::new(
-                    $false,
-                    "Test-1"
-                )
+                "Test-3",
+                "Test-2",
+                "Test-1"
             )
         }
     ) {
         It "Valid Evaluation" {
             # A) Setup
             $op = [CountUpOp]::new(
-                $false, 
                 @(
                     $From,
                     $To
@@ -74,11 +49,8 @@ InModuleScope PSTemplating {
             )
 
             # B) Operation
-            $values = $op.Evaluate(
-                [Value]::new(
-                    $false,
-                    $Value
-                )
+            $values = $op.Execute(
+                $Value
             )
 
             # C) Assertion

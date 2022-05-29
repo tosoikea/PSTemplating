@@ -6,92 +6,57 @@ InModuleScope PSTemplating {
     Describe "Operation Equality <Left> <Right>" -ForEach @(
         ## == TO LOWER ==
         @{
-            Left     = [ToLowerOp]::new($false);
-            Right    = [ToLowerOp]::new($false);
+            Left     = [ToLowerOp]::new();
+            Right    = [ToLowerOp]::new();
             Expected = $true
-        },
-        @{
-            Left     = [ToLowerOp]::new($true);
-            Right    = [ToLowerOp]::new($false);
-            Expected = $false
-        },
-        @{
-            Left     = [ToLowerOp]::new($false);
-            Right    = [ToUpperOP]::new($false);
-            Expected = $false
         },
         ## == TO UPPER ==
         @{
-            Left     = [ToUpperOP]::new($false);
-            Right    = [ToUpperOP]::new($false);
+            Left     = [ToUpperOP]::new();
+            Right    = [ToUpperOP]::new();
             Expected = $true
-        },
-        @{
-            Left     = [ToUpperOP]::new($true);
-            Right    = [ToUpperOP]::new($false);
-            Expected = $false
-        },
-        @{
-            Left     = [ToUpperOP]::new($false);
-            Right    = [ToLowerOp]::new($false);
-            Expected = $false
         },
         ## == SELECTION ==
         @{
-            Left     = [SelectionOp]::new($false, @("1"));
-            Right    = [SelectionOp]::new($false, @("1"));
+            Left     = [SelectionOp]::new(@("1"));
+            Right    = [SelectionOp]::new(@("1"));
             Expected = $true
         },
         @{
-            Left     = [SelectionOp]::new($true, @("1"));
-            Right    = [SelectionOp]::new($false, @("1"));
-            Expected = $false
-        },
-        @{
-            Left     = [SelectionOp]::new($false, @("1"));
-            Right    = [SelectionOp]::new($false, @("2"));
+            Left     = [SelectionOp]::new(@("1"));
+            Right    = [SelectionOp]::new(@("2"));
             Expected = $false
         },
         ## == COUNT DOWN ==
         @{
-            Left     = [CountDownOp]::new($false, @("1", "2"));
-            Right    = [CountDownOp]::new($false, @("1", "2"));
+            Left     = [CountDownOp]::new(@("1", "2"));
+            Right    = [CountDownOp]::new(@("1", "2"));
             Expected = $true
         },
         @{
-            Left     = [CountDownOp]::new($true, @("1", "2"));
-            Right    = [CountDownOp]::new($false, @("1", "2"));
+            Left     = [CountDownOp]::new(@("1", "2"));
+            Right    = [CountDownOp]::new(@("1", "3"));
             Expected = $false
         },
         @{
-            Left     = [CountDownOp]::new($false, @("1", "2"));
-            Right    = [CountDownOp]::new($false, @("1", "3"));
-            Expected = $false
-        },
-        @{
-            Left     = [CountDownOp]::new($false, @("1", "2"));
-            Right    = [CountDownOp]::new($false, @("3", "2"));
+            Left     = [CountDownOp]::new(@("1", "2"));
+            Right    = [CountDownOp]::new(@("3", "2"));
             Expected = $false
         },
         ## == COUNT UP ==
         @{
-            Left     = [CountUpOp]::new($false, @("1", "2"));
-            Right    = [CountUpOp]::new($false, @("1", "2"));
+            Left     = [CountUpOp]::new(@("1", "2"));
+            Right    = [CountUpOp]::new(@("1", "2"));
             Expected = $true
         },
         @{
-            Left     = [CountUpOp]::new($true, @("1", "2"));
-            Right    = [CountUpOp]::new($false, @("1", "2"));
+            Left     = [CountUpOp]::new(@("1", "2"));
+            Right    = [CountUpOp]::new(@("1", "3"));
             Expected = $false
         },
         @{
-            Left     = [CountUpOp]::new($false, @("1", "2"));
-            Right    = [CountUpOp]::new($false, @("1", "3"));
-            Expected = $false
-        },
-        @{
-            Left     = [CountUpOp]::new($false, @("1", "2"));
-            Right    = [CountUpOp]::new($false, @("3", "2"));
+            Left     = [CountUpOp]::new(@("1", "2"));
+            Right    = [CountUpOp]::new(@("3", "2"));
             Expected = $false
         }
     ) {
@@ -123,7 +88,9 @@ InModuleScope PSTemplating {
                 "x",
                 @(
                     [OperationGroup]::new(
-                        @([ToLowerOp]::new($false))
+                        @([ToLowerOp]::new()),
+                        $true,
+                        [OperationGroupType]::Conjunctive
                     )
                 )
             );
@@ -132,7 +99,48 @@ InModuleScope PSTemplating {
                 "x",
                 @(
                     [OperationGroup]::new(
-                        @([ToLowerOp]::new($false))
+                        @([ToLowerOp]::new()),
+                        $true,
+                        [OperationGroupType]::Conjunctive
+                    )
+                )
+            );
+            Expected = $true
+        },
+        @{
+            Left     = [Variable]::new(
+                $false,
+                "x",
+                @(
+                    [OperationGroup]::new(
+                        @([ToLowerOp]::new()),
+                        $false
+                    ),
+                    [OperationGroup]::new(
+                        @([SelectionOp]::new(@("0"))),
+                        $true
+                    ),
+                    [OperationGroup]::new(
+                        @([CountUpOp]::new(@("1", "3"))),
+                        $true
+                    )
+                )
+            );
+            Right    = [Variable]::new(
+                $false,
+                "x",
+                @(
+                    [OperationGroup]::new(
+                        @([ToLowerOp]::new()),
+                        $false
+                    ),
+                    [OperationGroup]::new(
+                        @([SelectionOp]::new(@("0"))),
+                        $true
+                    ),
+                    [OperationGroup]::new(
+                        @([CountUpOp]::new(@("1", "3"))),
+                        $true
                     )
                 )
             );

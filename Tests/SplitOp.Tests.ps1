@@ -6,110 +6,47 @@ InModuleScope PSTemplating {
         @{
             Value    = "Test";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "test"
-                )
+                "test"
             )
         },
         @{
             Value    = "A B";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "A"
-                ),
-                [Value]::new(
-                    $false,
-                    "B"
-                )
+                "A", "B"
             )
         },
         @{
             Value    = "A B C";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "A"
-                ),
-                [Value]::new(
-                    $false,
-                    "B"
-                ),
-                [Value]::new(
-                    $false,
-                    "C"
-                )
+                "A", "B", "C"
             )
         },
         @{
             Value    = "A B-C";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "A"
-                ),
-                [Value]::new(
-                    $false,
-                    "B"
-                ),
-                [Value]::new(
-                    $false,
-                    "C"
-                )
+                "A", "B", "C"
             )
         },
         @{
             Value    = "A-B-C";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "A"
-                ),
-                [Value]::new(
-                    $false,
-                    "B"
-                ),
-                [Value]::new(
-                    $false,
-                    "C"
-                )
+                "A", "B", "C"
             )
         }
         @{
             Value    = "A-B C-D";
             Expected = @(
-                [Value]::new(
-                    $false,
-                    "A"
-                ),
-                [Value]::new(
-                    $false,
-                    "B"
-                ),
-                [Value]::new(
-                    $false,
-                    "C"
-                ),
-                [Value]::new(
-                    $false,
-                    "D"
-                )
+                "A", "B", "C", "D"
             )
         }
     ) {
         It "Valid Evaluation" {
             # A) Setup
-            $op = [SplitOp]::new(
-                $false
-            )
+            $op = [SplitOp]::new()
 
             # B) Operation
-            $values = $op.Evaluate(
-                [Value]::new(
-                    $false,
-                    $Value
-                )
+            $values = $op.Execute(
+                $Value
             )
 
             # C) Assertion
