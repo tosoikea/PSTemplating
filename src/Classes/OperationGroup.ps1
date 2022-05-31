@@ -118,4 +118,10 @@ class OperationGroup {
         $this.Failover = $failover
         $this.Type = [OperationGroupType]::Conjunctive
     }
+
+    OperationGroup([Operation[]] $operations) {
+        $this.Operations = $operations
+        $this.Failover = $false
+        $this.Type = [OperationGroupType]::Conjunctive
+    }
 }
