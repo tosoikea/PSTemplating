@@ -236,6 +236,51 @@ InModuleScope PSTemplating {
             )
         },
         @{
+            Schema   = "{?firstName(lower)(sel[0]|sel[0,1]|sel[0,2]|sel[0,1,2])}{lastName(lower)(?split)}"
+            Expected = [Schema]::new(
+                @(
+                    [Variable]::new(
+                        $true,
+                        "firstName",
+                        @(
+                            [OperationGroup]::new(
+                                @(
+                                    [ToLowerOp]::new()
+                                )
+                            ),
+                            [OperationGroup]::new(
+                                @(
+                                    [SelectionOp]::new(@("0")),
+                                    [SelectionOp]::new(@("0", "1")),
+                                    [SelectionOp]::new(@("0", "2")),
+                                    [SelectionOp]::new(@("0", "1", "2"))
+                                ),
+                                $false,
+                                [OperationGroupType]::Disjunctive
+                            )
+                        )
+                    ),
+                    [Variable]::new(
+                        $false,
+                        "lastName",
+                        @(
+                            [OperationGroup]::new(
+                                @(
+                                    [ToLowerOp]::new()
+                                )
+                            ),
+                            [OperationGroup]::new(
+                                @(
+                                    [SplitOp]::new()
+                                ),
+                                $true
+                            )
+                        )
+                    )
+                )
+            )
+        },
+        @{
             Schema   = "<p>Hallo {firstName},<\/p>";
             Expected = [Schema]::new(
                 @(
