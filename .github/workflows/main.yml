@@ -1,0 +1,53 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Test PowerShell on Ubuntu
+
+# Controls when the workflow will run
+on: push
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  lint-with-PSScriptAnalyzer:
+    name: Install and run PSScriptAnalyzer
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install PSScriptAnalyzer module
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -ErrorAction Stop
+      - name: Lint with PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Invoke-ScriptAnalyzer -Path *.ps1 -Recurse -Outvariable issues
+          $errors   = $issues.Where({$_.Severity -eq 'Error'})
+          $warnings = $issues.Where({$_.Severity -eq 'Warning'})
+          if ($errors) {
+              Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+          } else {
+              Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+          }
+
+  pester-test:
+    name: Test module and upload results
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Test with Pester
+        shell: pwsh
+        run: Invoke-Pester -Passthru | Export-Clixml -Path Module.Tests.xml
+        working-directory: ./Tests
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ubuntu-Module-Tests
+          path: ./Tests/Module.Tests.xml
+    #The always() function configures the job to continue processing even if there are test failures. For more information, see "always."
+    if: ${{ always() }}
